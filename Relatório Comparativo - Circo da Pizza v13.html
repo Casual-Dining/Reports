@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circo da Pizza - Matriz Comparativa de Avaliações</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1e3a8a;
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .header .company-credit {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .metrics-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.1);
+            border: 2px solid #e0f2fe;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .metric-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #3b82f6;
+        }
+
+        .metric-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .metric-card .value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .section {
+            background: white;
+            margin: 30px 0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
+            border: 1px solid #e0f2fe;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 20px 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .section-content {
+            padding: 30px;
+            background: #fafbff;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.05);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            border: none;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 12px 10px;
+            border: 1px solid #e0f2fe;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8faff;
+        }
+
+        .comparison-table tr:hover {
+            background-color: #e0f2fe;
+        }
+
+        .score-excellent { 
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important; 
+            color: #166534; 
+            font-weight: bold; 
+            border-left: 4px solid #22c55e;
+        }
+        .score-good { 
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe) !important; 
+            color: #1d4ed8; 
+            font-weight: bold;
+            border-left: 4px solid #3b82f6;
+        }
+        .score-warning { 
+            background: linear-gradient(135deg, #fef3c7, #fde68a) !important; 
+            color: #92400e; 
+            font-weight: bold;
+            border-left: 4px solid #f59e0b;
+        }
+        .score-critical { 
+            background: linear-gradient(135deg, #fecaca, #fca5a5) !important; 
+            color: #991b1b; 
+            font-weight: bold;
+            border-left: 4px solid #ef4444;
+        }
+
+        .status-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+
+        .profile-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .profile-card h3 i {
+            color: white;
+            margin-right: 10px;
+        }
+
+        .profile-card .rating {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 10px 0;
+            color: white;
+        }
+
+        .profile-card .characteristics {
+            margin: 15px 0;
+            font-size: 0.95em;
+            line-height: 1.8;
+            color: white;
+        }
+
+        .profile-card .characteristics strong {
+            color: white;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            height: 500px;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid #e0f2fe;
+            padding: 10px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .action-card {
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid;
+            background: white;
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.05);
+        }
+
+        .action-immediate {
+            background: linear-gradient(135deg, #fef2f2, #ffffff);
+            border-left-color: #dc2626;
+        }
+
+        .action-priority {
+            background: linear-gradient(135deg, #fffbeb, #ffffff);
+            border-left-color: #d97706;
+        }
+
+        .action-medium {
+            background: linear-gradient(135deg, #f0fdf4, #ffffff);
+            border-left-color: #16a34a;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e3a8a;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+        }
+
+        .highlight-box h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+
+        .consensus-item {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #22c55e;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+        }
+
+        .problem-item {
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ef4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+        }
+
+        .quote {
+            font-style: italic;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8faff, #ffffff);
+            border-left: 4px solid #3b82f6;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+            color: #1e3a8a;
+        }
+
+        /* ESTILO OTIMIZADO PARA AS IMAGENS COM THUMBNAIL */
+        .pizza-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pizza-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.1);
+            border: 2px solid #e0f2fe;
+            transition: transform 0.3s ease;
+        }
+
+        .pizza-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        .pizza-image-container {
+            width: 100%;
+            height: 280px;
+            position: relative;
+            background: #f8faff;
+            border-bottom: 2px solid #e0f2fe;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pizza-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            border: none;
+            background-color: #f8faff;
+            transition: opacity 0.3s ease;
+        }
+
+        .pizza-image-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f8faff, #e0f2fe);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #3b82f6;
+            z-index: 1;
+        }
+
+        .pizza-image-placeholder i {
+            font-size: 3em;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+
+        .pizza-image-placeholder span {
+            font-size: 0.4em;
+            text-align: center;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .pizza-image.loaded + .pizza-image-placeholder {
+            display: none;
+        }
+
+        .pizza-info {
+            padding: 20px;
+        }
+
+        .pizza-info h4 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .pizza-info p {
+            color: #475569;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .pizza-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #1e3a8a;
+        }
+
+        .pizza-rating .stars {
+            color: #fbbf24;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .comparison-table {
+                font-size: 0.8em;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px 5px;
+            }
+
+            .pizza-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .pizza-image-container {
+                height: 250px;
+            }
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3);
+        }
+
+        .footer .company-credit {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        /* Animações suaves */
+        .metric-card, .section, .action-card, .pizza-item {
+            transition: all 0.3s ease;
+        }
+
+        /* Estilo para títulos das seções */
+        .section h3 {
+            color: #1e3a8a;
+            margin: 20px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0f2fe;
+        }
+
+        .section h4 {
+            color: #3b82f6;
+            margin: 15px 0 10px 0;
+        }
+
+        /* Melhorar legibilidade */
+        strong {
+            color: #1e3a8a;
+        }
+
+        em {
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-pizza-slice"></i> CIRCO DA PIZZA</h1>
+            <div class="subtitle">Matriz Comparativa de Avaliações - Cliente Oculto</div>
+            <div>📅 Período: 22-23 Setembro 2025 | 👥 3 Avaliadores Independentes</div>
+            <div class="company-credit">Relatório desenvolvido por <strong>Casual Dining</strong></div>
+        </div>
+
+        <!-- Métricas Overview -->
+        <div class="metrics-overview">
+            <div class="metric-card">
+                <div class="icon">😊</div>
+                <h3>Satisfação Geral</h3>
+                <div class="value">4.3/5</div>
+            </div>
+            <div class="metric-card">
+                <div class="icon">💰</div>
+                <h3>Ticket Médio</h3>
+                <div class="value">R$ 139,66</div>
+            </div>
+            <div class="metric-card">
+                <div class="icon">📈</div>
+                <h3>NPS</h3>
+                <div class="value">+67%</div>
+            </div>
+            
+        </div>
+
+        <!-- Resumo Executivo -->
+        <div class="highlight-box">
+            <h3><i class="fas fa-star"></i> RESUMO EXECUTIVO</h3>
+            <p><strong>Excelência Gastronômica Consistente</strong> com vulnerabilidades operacionais críticas na logística. 
+            Quando a entrega funciona adequadamente, a experiência é excepcional. 
+            Com correções pontuais, potencial para <strong>100% de satisfação</strong>.</p>
+        </div>
+
+        <!-- Perfis dos Avaliadores -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-users"></i> Perfil dos Avaliadores
+            </div>
+            <div class="section-content">
+                <div class="profiles-grid">
+                    <div class="profile-card">
+                        <h3><i class="fas fa-user-tie"></i> <strong>RUBENS OLIVEIRA SOUZA</strong></h3>
+                        <div class="rating">⭐⭐⭐⭐⭐ (5/5)</div>
+                        <div class="characteristics">
+                            <strong>Perfil Metodológico:</strong> Analítico-Construtivo<br>
+                            <strong>Investimento:</strong> R$ 170,99 (maior ticket)<br>
+                            <strong>Abordagem:</strong> Foco em melhorias sistêmicas e experiência do usuário<br>
+                            <strong>Competência Técnica:</strong> Análise detalhada de UX/UI digital<br>
+                            <strong>Contribuição Principal:</strong> Identificação de gaps no cardápio e sugestões de otimização da interface
+                        </div>
+                    </div>
+                    <div class="profile-card">
+                        <h3><i class="fas fa-user-cog"></i> <strong>RAFAEL GUEDES</strong></h3>
+                        <div class="rating">⭐⭐⭐☆☆ (3/5)</div>
+                        <div class="characteristics">
+                            <strong>Perfil Metodológico:</strong> Técnico-Investigativo<br>
+                            <strong>Investimento:</strong> R$ 123,99<br>
+                            <strong>Abordagem:</strong> Análise de processos operacionais e investigação de falhas<br>
+                            <strong>Impacto Observado:</strong> Falha crítica de logística (atraso 1h30)<br>
+                            <strong>Contribuição Principal:</strong> Diagnóstico de problemas na cadeia de entrega e análise de causa-raiz
+                        </div>
+                    </div>
+                    <div class="profile-card">
+                        <h3><i class="fas fa-user-graduate"></i> <strong>PRISCILA OLIVEIRA AMARAL CAMPOS</strong></h3>
+                        <div class="rating">⭐⭐⭐⭐⭐ (5/5)</div>
+                        <div class="characteristics">
+                            <strong>Perfil Metodológico:</strong> Técnico-Gastronômico<br>
+                            <strong>Investimento:</strong> R$ 123,99<br>
+                            <strong>Abordagem:</strong> Avaliação técnica de processos culinários<br>
+                            <strong>Expertise Diferencial:</strong> Conhecimento em fermentação natural e técnicas de panificação<br>
+                            <strong>Contribuição Principal:</strong> Validação técnica da qualidade gastronômica e robustez do produto
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Análise por Categorias -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-chart-bar"></i> Análise Comparativa por Categorias
+            </div>
+            <div class="section-content">
+                <div id="radarChart" class="chart-container"></div>
+                
+                <h3><i class="fas fa-mobile-alt"></i> 1. Cardápio Digital</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Rubens</th>
+                            <th>Rafael</th>
+                            <th>Priscila</th>
+                            <th>Média</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Organização das Categorias</strong></td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-good">4/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">4.7/5</td>
+                            <td><span class="status-icon">🟢</span>Excelente</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clareza das Informações</strong></td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5.0/5</td>
+                            <td><span class="status-icon">🟢</span>Perfeito</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Qualidade das Imagens</strong></td>
+                            <td class="score-warning">3/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-good">4.3/5</td>
+                            <td><span class="status-icon">🟢</span>Muito Bom</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Variedade de Sabores Salgados</strong></td>
+                            <td class="score-warning">3/5</td>
+                            <td class="score-good">4/5</td>
+                            <td class="score-warning">3/5</td>
+                            <td class="score-warning">3.3/5</td>
+                            <td><span class="status-icon">🟡</span>Regular</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Variedade de Sabores Doces</strong></td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-critical">2/5</td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-critical">1.3/5</td>
+                            <td><span class="status-icon">🔴</span>Crítico</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="quote">
+                    <strong>Rubens:</strong> <em>"Cardápio deveria ser semelhante ao de um restaurante, fotos muito pequenas"</em><br>
+                    <strong>Priscila:</strong> <em>"Cardápio simples, mas cobre sabores clássicos. Fotos de alta qualidade"</em>
+                </div>
+
+                <h3><i class="fas fa-shopping-cart"></i> 2. Processo de Pedido</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Rubens</th>
+                            <th>Rafael</th>
+                            <th>Priscila</th>
+                            <th>Média</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Estilo da Pizza</strong></td>
+                            <td class="score-excellent">✅ Aprovado</td>
+                            <td class="score-excellent">✅ Aprovado</td>
+                            <td class="score-excellent">✅ Aprovado</td>
+                            <td class="score-excellent">100%</td>
+                            <td><span class="status-icon">🟢</span>Unanimidade</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clareza do Cálculo Final</strong></td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5.0/5</td>
+                            <td><span class="status-icon">🟢</span>Perfeito</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Facilidade para Personalização</strong></td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-warning">3.7/5</td>
+                            <td><span class="status-icon">🟡</span>Divergente</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3><i class="fas fa-truck"></i> 3. Logística e Entrega</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Rubens</th>
+                            <th>Rafael</th>
+                            <th>Priscila</th>
+                            <th>Média</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pontualidade da Entrega</strong></td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-warning">3.7/5</td>
+                            <td><span class="status-icon">🔴</span>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Identificação dos Itens</strong></td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-critical">1.0/5</td>
+                            <td><span class="status-icon">🚨</span>FALHA UNÂNIME</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Controle da Temperatura</strong></td>
+                            <td class="score-excellent">5/5</td>
+                            <td class="score-critical">1/5</td>
+                            <td class="score-critical">2/5</td>
+                            <td class="score-critical">2.7/5</td>
+                            <td><span class="status-icon">🔴</span>Problemático</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="quote">
+                    <strong>Rafael:</strong> <em>"Pedido chegou 1h30 após o prazo, com 30min além do prazo máximo. Provavelmente o primeiro motoboy cancelou a entrega"</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Qualidade do Produto -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-award"></i> Qualidade do Produto - Excelência Unânime
+            </div>
+            <div class="section-content">
+                <div id="qualityChart" class="chart-container"></div>
+                
+                <div class="consensus-item">
+                    <h4><i class="fas fa-trophy"></i> Unanimidades Positivas (5/5)</h4>
+                    <ul>
+                        <li><strong>Aroma:</strong> Fragrância excepcional</li>
+                        <li><strong>Textura da Massa:</strong> Perfeição unânime</li>
+                        <li><strong>Frescor dos Ingredientes:</strong> Qualidade superior</li>
+                    </ul>
+                </div>
+
+                <h4><i class="fas fa-comments"></i> Destaques por Sabor:</h4>
+                <div class="quote">
+                    <strong>Rubens:</strong> <em>"Portuguesa e mortadela SENSACIONAIS!"</em><br>
+                    <strong>Priscila:</strong> <em>"Calabresa com queijo foi nossa favorita. Bem equilibrada"</em><br>
+                    <strong>Observação Técnica:</strong> <em>"Borda da massa continuou boa mesmo fria - fermentação natural superior"</em>
+                </div>
+
+                <div class="problem-item">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Pizza de Chocolate - Ajuste Necessário</h4>
+                    <strong>Rafael:</strong> <em>"Sabor enjoativo, abaixo das expectativas"</em><br>
+                    <strong>Priscila:</strong> <em>"Muito doce, parece feita com brigadeiro em vez de ganache"</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matriz de Criticidade -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-exclamation-circle"></i> Matriz de Criticidade dos Problemas
+            </div>
+            <div class="section-content">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Problema Identificado</th>
+                            <th>Frequência</th>
+                            <th>Impacto</th>
+                            <th>Nível de Criticidade</th>
+                            <th>Prazo para Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Identificação de Itens</strong></td>
+                            <td class="score-critical">3/3 (100%)</td>
+                            <td>Alto</td>
+                            <td class="score-critical">🚨 CRÍTICA</td>
+                            <td><strong>Imediata</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Controle de Temperatura</strong></td>
+                            <td class="score-critical">2/3 (67%)</td>
+                            <td>Alto</td>
+                            <td class="score-critical">🔴 Alta</td>
+                            <td><strong>Imediata</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Variedade de Pizzas Doces</strong></td>
+                            <td class="score-critical">3/3 (100%)</td>
+                            <td>Médio</td>
+                            <td class="score-critical">🔴 Alta</td>
+                            <td><strong>30 dias</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pontualidade das Entregas</strong></td>
+                            <td class="score-warning">1/3 (33%)</td>
+                            <td>Muito Alto</td>
+                            <td class="score-critical">🚨 CRÍTICA</td>
+                            <td><strong>Imediata</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Plano de Ação -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-tasks"></i> Plano de Ação Estratégico
+            </div>
+            <div class="section-content">
+                <div class="actions-grid">
+                    <div class="action-card action-immediate">
+                        <h4><i class="fas fa-exclamation-triangle"></i> AÇÕES IMEDIATAS (0-15 dias)</h4>
+                        <ul>
+                            <li><strong>Etiquetas de identificação</strong> nas embalagens</li>
+                            <li><strong>Sistema de backup</strong> para entregadores</li>
+                            <li><strong>Protocolo de temperatura</strong> para entregas longas</li>
+                        </ul>
+                    </div>
+                    <div class="action-card action-priority">
+                        <h4><i class="fas fa-clock"></i> AÇÕES PRIORITÁRIAS (15-30 dias)</h4>
+                        <ul>
+                            <li><strong>Expandir variedade</strong> de pizzas doces</li>
+                            <li><strong>Reformular pizza de chocolate</strong> - reduzir doçura</li>
+                            <li><strong>Melhorar acompanhamento</strong> de status</li>
+                        </ul>
+                    </div>
+                    <div class="action-card action-medium">
+                        <h4><i class="fas fa-cogs"></i> AÇÕES DE MÉDIO PRAZO (30-60 dias)</h4>
+                        <ul>
+                            <li><strong>Sistema de personalização</strong> básica</li>
+                            <li><strong>Layout do cardápio</strong> mais atrativo</li>
+                            <li><strong>Treinamento em gestão</strong> de expectativas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correlação Logística x Satisfação -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-chart-line"></i> Impacto da Logística na Satisfação Final
+            </div>
+            <div class="section-content">
+                <div id="correlationChart" class="chart-container"></div>
+                
+                <div class="highlight-box">
+                    <h3><i class="fas fa-lightbulb"></i> INSIGHT PRINCIPAL</h3>
+                    <p>A logística é <strong>fator determinante</strong> na experiência final. 
+                    A qualidade excepcional do produto pode compensar problemas quando há justificativa 
+                    compreensível (distância), mas não quando há <strong>falhas operacionais graves</strong> (atraso injustificado).</p>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Avaliador</th>
+                            <th>Pontualidade</th>
+                            <th>Temperatura</th>
+                            <th>Satisfação Final</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Rubens</strong></td>
+                            <td class="score-excellent">5/5 (Pontual)</td>
+                            <td class="score-excellent">5/5 (Ideal)</td>
+                            <td class="score-excellent">5/5 (Excepcional)</td>
+                            <td>Experiência perfeita</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rafael</strong></td>
+                            <td class="score-critical">1/5 (Muito atrasado)</td>
+                            <td class="score-critical">1/5 (Fria)</td>
+                            <td class="score-critical">3/5 (Comprometida)</td>
+                            <td>Falha operacional grave</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Priscila</strong></td>
+                            <td class="score-excellent">5/5 (Adequado)</td>
+                            <td class="score-critical">2/5 (Fria justificável)</td>
+                            <td class="score-excellent">5/5 (Excepcional)</td>
+                            <td>Qualidade compensou distância</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GALERIA COM NOVO FORMATO THUMBNAIL -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-camera"></i> Galeria de Produtos Avaliados
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 20px; color: #475569;">
+                    Registro fotográfico dos produtos consumidos durante as avaliações, evidenciando a apresentação, 
+                    qualidade visual e aspectos técnicos identificados pelos avaliadores.
+                </p>
+                
+                <div class="pizza-gallery">
+                    <!-- Pizza de Mussarela -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=11JPJvOgNm8QectIZNbQnkKZbM8vEk2h-" 
+                                 alt="Pizza de Mussarela" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-pizza-slice"></i>
+                                <div>Pizza de Mussarela</div>
+                                <span>Avaliação base com massa napolitana</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Pizza de Mussarela</h4>
+                            <p>Avaliação base com massa napolitana e queijo mussarela. Bordas bem formadas pela fermentação natural, 
+                            com douração adequada. Sugestão de aumento em 50g de queijo identificada.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐⭐</span>
+                                <span>Qualidade excepcional</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pizza Portuguesa -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=1tsMzCzxghbtuIrE_Dce1i6zald6IjImr" 
+                                 alt="Pizza Portuguesa" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-pizza-slice"></i>
+                                <div>Pizza Portuguesa</div>
+                                <span>Combinação clássica completa</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Pizza Portuguesa</h4>
+                            <p>Combinação clássica com presunto, ovos, cebola, azeitonas e ervilhas. Distribuição equilibrada dos ingredientes 
+                            e sabor destacado como "SENSACIONAL" pelo avaliador.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐⭐</span>
+                                <span>Destaque absoluto</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pizza de Mortadela -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=1RdEfa7e6IpRl8CUbmvEgpncQehpZXr88" 
+                                 alt="Pizza de Mortadela" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-pizza-slice"></i>
+                                <div>Pizza de Mortadela</div>
+                                <span>Sabor inovador aprovado</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Pizza de Mortadela</h4>
+                            <p>Sabor inovador com mortadela e mostarda. Classificada como "SENSACIONAL", porém com observação sobre 
+                            a quantidade de mostarda que poderia ser ajustada para maior impacto no sabor.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐⭐</span>
+                                <span>Inovação aprovada</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pizza de Chocolate M&M -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=1abb9S3yWNk9Py6KWtIU7jbQUCbsdvZ9H" 
+                                 alt="Pizza de Chocolate M&M" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-cookie-bite"></i>
+                                <div>Pizza de Chocolate</div>
+                                <span>Opção doce para ajustes</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Pizza de Chocolate com M&Ms</h4>
+                            <p>Opção doce com cobertura de chocolate e confeitos coloridos. Feedback indica excesso de doçura, 
+                            sugerindo substituição do brigadeiro por ganache para melhor equilíbrio.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐☆☆</span>
+                                <span>Necessita ajustes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pizza de Calabresa -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=1mWdd7IeX8quUMgkc-QUF-JdE15noHqK-" 
+                                 alt="Pizza de Calabresa com Queijo" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-pizza-slice"></i>
+                                <div>Pizza de Calabresa</div>
+                                <span>Favorita dos avaliadores</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Pizza de Calabresa com Queijo</h4>
+                            <p>Considerada a favorita pelo perfil gastronômico. Equilibrio perfeito entre calabresa e queijo, 
+                            demonstrando consistência na execução dos sabores tradicionais.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐⭐</span>
+                                <span>Favorita técnica</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pizza de Três Queijos -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=14Cnn5vfPo7tftc7TdgivzTdutVPOUK30" 
+                                 alt="Pizza de Três Queijos" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-pizza-slice"></i>
+                                <div>Pizza Três Queijos</div>
+                                <span>Harmonia de sabores</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Pizza de Três Queijos</h4>
+                            <p>Combinação harmoniosa de diferentes tipos de queijo, proporcionando complexidade de sabores. 
+                            Avaliada como "bastante agradável" com execução técnica consistente.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐⭐</span>
+                                <span>Harmonia de sabores</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Embalagem -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=1Zmfef2BFzyr_cJwH2_vgorulQehuh2p2" 
+                                 alt="Embalagem Circo da Pizza" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-box-open"></i>
+                                <div>Embalagem Lúdica</div>
+                                <span>"Hora de Colorir"</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Embalagem "Hora de Colorir"</h4>
+                            <p>Conceito lúdico da pizzaria com caixas temáticas para colorir. Design criativo voltado para famílias, 
+                            porém com feedback sobre efetividade real junto ao público infantil.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐☆</span>
+                                <span>Conceito criativo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Embalagem Selada -->
+                    <div class="pizza-item">
+                        <div class="pizza-image-container">
+                            <img src="https://drive.google.com/thumbnail?id=1NYqfi-5yRgqhSyWdI1OuDj9WZRumlqwS" 
+                                 alt="Embalagem Selada" 
+                                 class="pizza-image"
+                                 onerror="this.style.display='none'"
+                                 onload="this.classList.add('loaded')">
+                            <div class="pizza-image-placeholder">
+                                <i class="fas fa-box"></i>
+                                <div>Sistema Selado</div>
+                                <span>Cuidado na apresentação</span>
+                            </div>
+                        </div>
+                        <div class="pizza-info">
+                            <h4>Sistema de Embalagem Selada</h4>
+                            <p>Apresentação das três pizzas em embalagens individuais seladas. Demonstra cuidado na apresentação, 
+                            mas evidencia a necessidade de identificação externa dos sabores.</p>
+                            <div class="pizza-rating">
+                                <span class="stars">⭐⭐⭐⭐☆</span>
+                                <span>Bom cuidado, falta identificação</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #f8faff, #ffffff); border-radius: 10px; border-left: 4px solid #3b82f6;">
+                    <h4 style="color: #1e3a8a; margin-bottom: 10px;">
+                        <i class="fas fa-info-circle"></i> Observações Técnicas sobre a Apresentação
+                    </h4>
+                    <ul style="color: #475569; line-height: 1.6;">
+                        <li><strong>Embalagem:</strong> Caixas redondas com conceito lúdico "Hora de Colorir" bem recebido</li>
+                        <li><strong>Suporte Plástico:</strong> Uso adequado do separador para manter integridade do produto</li>
+                        <li><strong>Temperatura:</strong> Variação identificada relacionada à logística de entrega</li>
+                        <li><strong>Identificação:</strong> Necessidade unânime de marcação dos sabores nas embalagens</li>
+                        <li><strong>Qualidade Visual:</strong> Produtos apresentam excelente apelo visual e execução técnica</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusão Final -->
+        <div class="highlight-box">
+            <h3><i class="fas fa-trophy"></i> POTENCIAL DE CRESCIMENTO</h3>
+            <p><strong>Com as correções das falhas identificadas, o Circo da Pizza tem potencial para alcançar 
+            100% de satisfação excepcional</strong>, considerando que possui a base gastronômica necessária 
+            para sustentar crescimento significativo no mercado de delivery.</p>
+            <br>
+            <p><strong>Prioridade Máxima:</strong> Estabilização da logística de entrega e implementação de 
+            identificação de produtos. Uma vez resolvidos, podem elevar todas as avaliações ao nível de 
+            excelência já demonstrado na qualidade gastronômica.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <h3>📊 Relatório Técnico Completo</h3>
+            <p>Análise baseada em metodologia de cliente oculto com 3 avaliadores independentes</p>
+            <p><i class="fas fa-calendar-alt"></i> Setembro 2025 | <i class="fas fa-shield-alt"></i> Confidencial</p>
+            <div class="company-credit">Relatório desenvolvido por <strong>Casual Dining</strong></div>
+        </div>
+    </div>
+
+    <script>
+        // Aguardar o carregamento completo do Plotly
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuração global do Plotly
+            Plotly.setPlotConfig({
+                displayModeBar: false,
+                responsive: true
+            });
+
+            // Gráfico Radar das Categorias
+            const radarData = [{
+                type: 'scatterpolar',
+                r: [3.4, 4.4, 4.0, 3.5, 4.8],
+                theta: ['Cardápio Digital', 'Processo de Pedido', 'Acompanhamento', 'Embalagem/Entrega', 'Qualidade do Produto'],
+                fill: 'toself',
+                fillcolor: 'rgba(30, 58, 138, 0.2)',
+                line: {
+                    color: '#1e3a8a',
+                    width: 3
+                },
+                marker: {
+                    color: '#1e3a8a',
+                    size: 8
+                },
+                name: 'Performance'
+            }];
+
+            const radarLayout = {
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 5],
+                        tickfont: { 
+                            size: 12, 
+                            color: '#1e3a8a' 
+                        },
+                        gridcolor: '#e0f2fe',
+                        linecolor: '#3b82f6'
+                    },
+                    angularaxis: {
+                        tickfont: { 
+                            size: 14, 
+                            color: '#1e3a8a',
+                            family: 'Segoe UI, Arial'
+                        },
+                        linecolor: '#3b82f6'
+                    }
+                },
+                title: {
+                    text: 'Performance por Categoria (Escala 0-5)',
+                    font: { 
+                        size: 18, 
+                        color: '#1e3a8a',
+                        family: 'Segoe UI, Arial'
+                    },
+                    x: 0.5
+                },
+                showlegend: false,
+                paper_bgcolor: 'rgba(255,255,255,1)',
+                plot_bgcolor: 'rgba(255,255,255,1)',
+                margin: { t: 80, b: 40, l: 40, r: 40 }
+            };
+
+            Plotly.newPlot('radarChart', radarData, radarLayout, {
+                responsive: true,
+                displayModeBar: false
+            });
+
+            // Gráfico de Qualidade do Produto
+            const qualityData = [{
+                x: ['Aroma', 'Visual', 'Proporção<br>Ingredientes', 'Sabor', 'Textura<br>da Massa', 'Frescor dos<br>Ingredientes', 'Nível<br>de Sal', 'Corte da<br>Pizza'],
+                y: [5.0, 4.7, 4.7, 4.7, 5.0, 5.0, 4.7, 4.7],
+                type: 'bar',
+                marker: {
+                    color: ['#1e3a8a', '#3b82f6', '#3b82f6', '#3b82f6', '#1e3a8a', '#1e3a8a', '#3b82f6', '#3b82f6'],
+                    line: { 
+                        color: '#1e3a8a', 
+                        width: 1 
+                    }
+                },
+                text: ['5.0', '4.7', '4.7', '4.7', '5.0', '5.0', '4.7', '4.7'],
+                textposition: 'outside',
+                textfont: {
+                    color: '#1e3a8a',
+                    size: 12
+                }
+            }];
+
+            const qualityLayout = {
+                title: {
+                    text: 'Qualidade do Produto - Médias por Métrica',
+                    font: { 
+                        size: 18, 
+                        color: '#1e3a8a',
+                        family: 'Segoe UI, Arial'
+                    },
+                    x: 0.5
+                },
+                xaxis: {
+                    title: {
+                        text: 'Aspectos Avaliados',
+                        font: { color: '#1e3a8a' }
+                    },
+                    tickfont: { 
+                        size: 12, 
+                        color: '#1e3a8a' 
+                    },
+                    gridcolor: '#e0f2fe',
+                    linecolor: '#3b82f6'
+                },
+                yaxis: {
+                    title: {
+                        text: 'Pontuação Média',
+                        font: { color: '#1e3a8a' }
+                    },
+                    range: [0, 5.5],
+                    tickfont: { 
+                        size: 12, 
+                        color: '#1e3a8a' 
+                    },
+                    gridcolor: '#e0f2fe',
+                    linecolor: '#3b82f6'
+                },
+                paper_bgcolor: 'rgba(255,255,255,1)',
+                plot_bgcolor: 'rgba(255,255,255,1)',
+                showlegend: false,
+                margin: { t: 80, b: 80, l: 60, r: 40 }
+            };
+
+            Plotly.newPlot('qualityChart', qualityData, qualityLayout, {
+                responsive: true,
+                displayModeBar: false
+            });
+
+            // Gráfico de Correlação Logística x Satisfação
+            const correlationData = [{
+                x: ['Rubens<br>(Pontual)', 'Rafael<br>(Atrasado)', 'Priscila<br>(Pontual)'],
+                y: [5, 3, 5],
+                type: 'bar',
+                marker: {
+                    color: ['#22c55e', '#dc2626', '#22c55e'],
+                    line: { 
+                        color: '#1e3a8a', 
+                        width: 2 
+                    }
+                },
+                text: ['Experiência<br>Perfeita', 'Falha<br>Operacional', 'Qualidade<br>Compensou'],
+                textposition: 'auto',
+                textfont: { 
+                    color: 'white', 
+                    size: 12,
+                    family: 'Segoe UI, Arial'
+                }
+            }];
+
+            const correlationLayout = {
+                title: {
+                    text: 'Impacto da Pontualidade na Satisfação Final',
+                    font: { 
+                        size: 18, 
+                        color: '#1e3a8a',
+                        family: 'Segoe UI, Arial'
+                    },
+                    x: 0.5
+                },
+                xaxis: {
+                    title: {
+                        text: 'Avaliadores e Status da Entrega',
+                        font: { color: '#1e3a8a' }
+                    },
+                    tickfont: { 
+                        size: 12, 
+                        color: '#1e3a8a' 
+                    },
+                    gridcolor: '#e0f2fe',
+                    linecolor: '#3b82f6'
+                },
+                yaxis: {
+                    title: {
+                        text: 'Satisfação Final',
+                        font: { color: '#1e3a8a' }
+                    },
+                    range: [0, 5.5],
+                    tickfont: { 
+                        size: 12, 
+                        color: '#1e3a8a' 
+                    },
+                    gridcolor: '#e0f2fe',
+                    linecolor: '#3b82f6'
+                },
+                paper_bgcolor: 'rgba(255,255,255,1)',
+                plot_bgcolor: 'rgba(255,255,255,1)',
+                showlegend: false,
+                margin: { t: 80, b: 80, l: 60, r: 40 }
+            };
+
+            Plotly.newPlot('correlationChart', correlationData, correlationLayout, {
+                responsive: true,
+                displayModeBar: false
+            });
+
+            // Adicionar interatividade aos cards
+            document.querySelectorAll('.metric-card, .pizza-item').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
